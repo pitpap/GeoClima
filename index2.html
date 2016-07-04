@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no"/>
+    <title>Simple Map</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/3.17/esri/css/esri.css">
+     <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+	  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+	  <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <style>
+      html, body, #map {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .months{
+      	font-size: 12px;
+      	color: blueviolet;
+      }
+    </style>
+    <script src="https://js.arcgis.com/3.17/"></script>
+    <script>
+      var map;
+
+      require(["esri/map", 
+        "esri/layers/ArcGISDynamicMapServiceLayer",
+        "esri/layers/ImageParameters",
+      	"dojo/domReady!"], 
+      	function(Map, ArcGISDynamicMapServiceLayer, ImageParameters) {
+        map = new Map("map", {
+          basemap: "topo",  //For full list of pre-defined basemaps, navigate to http://arcg.is/1JVo6Wd
+          center: [23, 39], // longitude, latitude
+          zoom: 8
+        });
+        
+        
+        var imageParameters = new ImageParameters();
+        //imageParameters.layerIds = [1];
+        imageParameters.format = "jpeg"; //set the image type to PNG24, note default is PNG8.
+
+        //Takes a URL to a non cached map service.
+        var dynamicMapServiceLayer = new ArcGISDynamicMapServiceLayer("https://wg-web.aegean.gr/aegean/rest/services/SDI_ClimatMeteorAtm/ClimaticData_Geoclima1/MapServer", {
+          "opacity" : 0.5,
+          "imageParameters" : imageParameters//,
+         // "useMapImage": true
+        });
+
+        map.addLayer(dynamicMapServiceLayer);
+        var visibleL= [];
+        visibleL.push(109);
+        dynamicMapServiceLayer.setVisibleLayers(visibleL);
+        
+     	dynamicMapServiceLayer.on('visible-layers-change', function(e) {
+	    		fader(dynamicMapServiceLayer, 0.5, 'out');
+	    		//dynamicMapServiceLayer.setOpacity(0.0);
+	  	});
+     	dynamicMapServiceLayer.on('update', function(e) {
+     		    setTimeout(function(){
+				fader(dynamicMapServiceLayer, 0.0, 'in');
+			}, 500);
+	    		
+	  	});
+	  	
+        $( "#radio" ).buttonset();
+        
+        $('#myForm input').on('change', function() {
+		   //alert($('input[name="radio"]:checked', '#myForm').val()); 
+		   var LID = parseInt($('input[name="radio"]:checked', '#myForm').val());
+		   var visibleL1= [];
+		   visibleL1.push(LID);
+           dynamicMapServiceLayer.setVisibleLayers(visibleL1);
+		});
+		
+		
+		
+		
+		
+		function fader(layer, op, dir) {
+        if (dir == 'out') {
+          if (op > 0) { // fading out
+            layer.setOpacity(op.toFixed(1));
+            op-=0.1;
+            setTimeout(function() {
+              fader(layer, op, dir);
+            }, 100);
+          } else { // fade out finished
+            //layer.hide();
+          }
+        } else if (dir == 'in') { 
+          if ( ! layer.visible ) {
+            //layer.show();
+          }
+          if (op < 0.6) { // fading in
+            layer.setOpacity(op.toFixed(1));
+            op+=0.1;
+            setTimeout(function() {
+              fader(layer, op, dir);
+            }, 100);
+          } 
+        }
+      }
+		function sleepFor( sleepDuration ){
+		    var now = new Date().getTime();
+		    while(new Date().getTime() < now + sleepDuration){ /* do nothing */ } 
+		}
+		
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="map">
+    	<div style="position: absolute;top: 20px;left: 61px;z-index: 5;">
+    	<form id="myForm">
+    	<div id="radio" >
+		    <input type="radio" id="radio1" name="radio" value="1"  checked="checked"><label for="radio1">Annual</label>
+		    <input type="radio" id="radio2" name="radio" value="2" ><label for="radio2">Spring</label>
+		    <input type="radio" id="radio3" name="radio" value="3" ><label for="radio3">Summer</label>
+		    <input type="radio" id="radio4" name="radio" value="4" ><label for="radio4">Autumn</label>
+		    <input type="radio" id="radio5" name="radio" value="5" ><label for="radio5">Winter</label>
+		    <br>
+		    <input type="radio" id="radio6" class="months" name="radio" value="6"><label for="radio6" class="months" >January</label>
+		    <input type="radio" id="radio7" class="months" name="radio" value="7" ><label for="radio7" class="months" >February</label>
+		    <input type="radio" id="radio8" class="months" name="radio" value="8" ><label for="radio8" class="months" >March</label>
+		    <input type="radio" id="radio9" class="months" name="radio" value="9" ><label for="radio9" class="months" >April</label>
+		    <input type="radio" id="radio10" class="months" name="radio" value="10" ><label for="radio10" class="months" >May</label>
+		    <input type="radio" id="radio11" class="months" name="radio" value="11"><label for="radio11" class="months" >June</label>
+		    <input type="radio" id="radio12" class="months" name="radio" value="12" ><label for="radio12" class="months" >July</label>
+		    <input type="radio" id="radio13" class="months" name="radio" value="13" ><label for="radio13" class="months" >August</label>
+		    <input type="radio" id="radio14" class="months" name="radio" value="14" ><label for="radio14" class="months" >September</label>
+		    <input type="radio" id="radio15" class="months" name="radio" value="15" ><label for="radio15" class="months" >October</label>
+		    <input type="radio" id="radio16" class="months" name="radio" value="16" ><label for="radio16" class="months" >November</label>
+		    <input type="radio" id="radio17" class="months" name="radio" value="17" ><label for="radio17" class="months" >December</label>
+		  </div>
+		  </form>
+		  
+		</div>  
+    	
+    </div>
+  </body>
+</html>
